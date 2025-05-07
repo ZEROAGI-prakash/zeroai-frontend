@@ -11,13 +11,22 @@ function App() {
   const fetchData = async () => {
     setLoading(true);
     setAnswer('');
-    const res = await fetch(`${backendUrl}/ask`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question, history: [] }),
-    });
-    const data = await res.json();
-    setAnswer(data.answer);
+    try {
+      const res = await fetch(`${backendUrl}/ask`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question, history: [] }),
+      });
+      const text = await res.text();
+      try {
+        const data = JSON.parse(text);
+        setAnswer(data.answer || 'No answer received.');
+      } catch (e) {
+        setAnswer('Error: ' + text);
+      }
+    } catch (e) {
+      setAnswer('Network error: ' + e.message);
+    }
     setLoading(false);
   };
 
