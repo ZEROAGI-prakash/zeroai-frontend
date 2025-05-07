@@ -1,50 +1,47 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [question, setQuestion] = useState('');
+  const [answer, setAnswer] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const fetchData = async () => {
-    const res = await fetch("https://e8ca-2409-40c1-5014-29ea-551e-fb02-7...ngrok-free.app/ask", {
+    setLoading(true);
+    setAnswer('');
+    const res = await fetch(`${backendUrl}/ask`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ query: 'example' }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question, history: [] }),
     });
     const data = await res.json();
-    console.log(data);
+    setAnswer(data.answer);
+    setLoading(false);
   };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <button onClick={fetchData}>
-          Fetch Data
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div style={{ maxWidth: 600, margin: '40px auto', fontFamily: 'sans-serif' }}>
+      <h2>Ask ZeroAI</h2>
+      <input
+        style={{ width: '80%', padding: 8, fontSize: 16 }}
+        value={question}
+        onChange={e => setQuestion(e.target.value)}
+        placeholder="Type your question..."
+      />
+      <button onClick={fetchData} style={{ marginLeft: 8, padding: '8px 16px' }}>
+        Ask
+      </button>
+      {loading && <div>Loading...</div>}
+      {answer && (
+        <div style={{ marginTop: 24, padding: 16, background: '#f0f0f0', borderRadius: 8 }}>
+          <b>Answer:</b>
+          <div>{answer}</div>
+        </div>
+      )}
+    </div>
+  );
 }
 
-export default App
+export default App;
